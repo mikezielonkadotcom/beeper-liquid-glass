@@ -1,0 +1,237 @@
+/*
+ * Beeper Liquid Glass: Beeper Desktop v4, light + dark
+ * https://github.com/mikezielonkadotcom/beeper-liquid-glass
+ *
+ * Copyright (C) 2026 Mike Zielonka
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * This program is free software: you can redistribute it and/or modify it under
+ * the terms of the GNU General Public License as published by the Free Software
+ * Foundation, either version 3 of the License, or (at your option) any later version.
+ * See LICENSE for the full text.
+ *
+ * Built against Beeper 4.3.284's own CSS tokens and module classes.
+ *
+ * Install: ~/Library/Application Support/BeeperTexts/custom.css
+ * Apply:   Settings > Appearance > Custom CSS > Reload CSS
+ * Undo:    same panel > Reset CSS
+ * Needs:   Appearance > "Reduce transparency" OFF for the frosted sidebar.
+ *          With it ON (or macOS Reduce Transparency), this falls back to solid fills.
+ *
+ * Layers:
+ *   1. Sidebar  = native macOS vibrancy (real desktop blur, left untouched)
+ *   2. Canvas   = soft ambient color field behind the conversation
+ *   3. Glass    = header, bubbles, composer, buttons, selection float on top
+ */
+
+/* ============ Tokens: light ============ */
+:root {
+    --lg-accent: #0a84ff;
+    --lg-accent-top: #43a1ff;
+    --lg-accent-bottom: #0a6cf0;
+    --lg-accent-rgb: 10, 132, 255;
+
+    --lg-fill: rgba(255, 255, 255, 0.58);
+    --lg-fill-strong: rgba(255, 255, 255, 0.78);
+    --lg-fill-solid: #f7f8fb;
+    --lg-fill-overlay: rgba(250, 250, 252, 0.92);
+    --lg-stroke: rgba(255, 255, 255, 0.85);
+    --lg-hairline: rgba(15, 23, 42, 0.08);
+    --lg-highlight: inset 0 1px 0 rgba(255, 255, 255, 0.95), inset 0 -1px 0 rgba(255, 255, 255, 0.35);
+    --lg-shadow: 0 6px 20px rgba(15, 23, 42, 0.08), 0 1px 2px rgba(15, 23, 42, 0.06);
+    --lg-shadow-soft: 0 1px 2px rgba(15, 23, 42, 0.06);
+    --lg-blur: blur(24px) saturate(180%);
+
+    --lg-canvas-base: #eef1f7;
+    --lg-canvas:
+        radial-gradient(60% 50% at 12% 8%, rgba(122, 162, 255, 0.38), transparent 70%),
+        radial-gradient(50% 45% at 88% 18%, rgba(255, 168, 204, 0.30), transparent 70%),
+        radial-gradient(55% 50% at 78% 92%, rgba(132, 226, 208, 0.28), transparent 70%),
+        radial-gradient(50% 50% at 8% 88%, rgba(196, 166, 255, 0.26), transparent 70%);
+
+    --lg-text: #1d1d1f;
+
+    /* Beeper tokens */
+    --color-primary: var(--lg-accent);
+    --bubble-out-bg: var(--lg-accent);
+    --color-glass-surface: var(--lg-fill);
+    --color-glass-container: var(--lg-stroke);
+}
+
+/* ============ Tokens: dark ============ */
+@media (prefers-color-scheme: dark) {
+    :root {
+        --lg-accent: #0a84ff;
+        --lg-accent-top: #3d9bff;
+        --lg-accent-bottom: #0062e0;
+
+        --lg-fill: rgba(255, 255, 255, 0.075);
+        --lg-fill-strong: rgba(255, 255, 255, 0.12);
+        --lg-fill-solid: #1c1d22;
+        --lg-fill-overlay: rgba(28, 29, 34, 0.94);
+        --lg-stroke: rgba(255, 255, 255, 0.14);
+        --lg-hairline: rgba(255, 255, 255, 0.07);
+        --lg-highlight: inset 0 1px 0 rgba(255, 255, 255, 0.16), inset 0 -1px 0 rgba(255, 255, 255, 0.03);
+        --lg-shadow: 0 8px 28px rgba(0, 0, 0, 0.45), 0 1px 2px rgba(0, 0, 0, 0.4);
+        --lg-shadow-soft: 0 1px 2px rgba(0, 0, 0, 0.35);
+
+        --lg-canvas-base: #08090d;
+        --lg-canvas:
+            radial-gradient(60% 50% at 10% 6%, rgba(64, 104, 255, 0.24), transparent 70%),
+            radial-gradient(50% 45% at 90% 16%, rgba(168, 84, 255, 0.16), transparent 70%),
+            radial-gradient(55% 50% at 80% 94%, rgba(0, 186, 170, 0.13), transparent 70%),
+            radial-gradient(50% 50% at 6% 90%, rgba(255, 92, 146, 0.09), transparent 70%);
+
+        --lg-text: #f5f5f7;
+
+        --color-primary: var(--lg-accent);
+        --bubble-out-bg: var(--lg-accent);
+    }
+}
+
+/* ============ Canvas ============ */
+.conversation:not(.has-chat-wallpaper) {
+    background: var(--lg-canvas), var(--lg-canvas-base);
+}
+
+.conversation:not(.has-chat-wallpaper) .panes,
+.conversation:not(.has-chat-wallpaper) [class*="ComposeMessage-module__wrapper"] {
+    background: transparent;
+}
+
+/* ============ Header: frosted bar over scrolling messages ============ */
+.right-pane-header.right-pane-header-thread {
+    background: var(--lg-fill);
+    backdrop-filter: var(--lg-blur);
+    -webkit-backdrop-filter: var(--lg-blur);
+    border-bottom: 0.5px solid var(--lg-hairline);
+    box-shadow: var(--lg-highlight);
+}
+
+.thread-header .thread-title-top {
+    letter-spacing: 0.01em;
+}
+
+/* Date chips ("Today") */
+.conversation:not(.has-chat-wallpaper) .date div {
+    background: var(--lg-fill);
+    backdrop-filter: var(--lg-blur);
+    -webkit-backdrop-filter: var(--lg-blur);
+    border: 0.5px solid var(--lg-stroke);
+    box-shadow: var(--lg-highlight), var(--lg-shadow-soft);
+    letter-spacing: 0.02em;
+}
+
+/* ============ Bubbles ============ */
+[class*="MessageContent-module__contents"]:not([class*="MessageContent-module__isSender"]) {
+    background: var(--lg-fill-strong);
+    border: 0.5px solid var(--lg-stroke);
+    box-shadow: var(--lg-highlight), var(--lg-shadow-soft);
+    color: var(--lg-text);
+}
+
+[class*="MessageContent-module__contents"][class*="MessageContent-module__isSender"]:not([class*="MessageContent-module__isSMS"]) {
+    background: linear-gradient(180deg, var(--lg-accent-top) 0%, var(--lg-accent-bottom) 100%);
+    border: 0.5px solid rgba(255, 255, 255, 0.22);
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.35), 0 2px 10px rgba(var(--lg-accent-rgb), 0.28);
+}
+
+/* ============ Composer: floating glass capsule ============ */
+[class*="ComposeMessage-module__input"] {
+    background: var(--lg-fill);
+    backdrop-filter: var(--lg-blur);
+    -webkit-backdrop-filter: var(--lg-blur);
+    border: 0.5px solid var(--lg-stroke);
+    box-shadow: var(--lg-highlight), var(--lg-shadow);
+    border-radius: 22px;
+    transition: box-shadow 140ms ease, border-color 140ms ease;
+}
+
+[class*="ComposeMessage-module__input"]:has(.ProseMirror-focused) {
+    border-color: rgba(var(--lg-accent-rgb), 0.55);
+    box-shadow: var(--lg-highlight), var(--lg-shadow), 0 0 0 3px rgba(var(--lg-accent-rgb), 0.16);
+}
+
+/* Glass circle buttons: composer +, filter, chat info */
+[class*="ComposeMessage-module__leftButtons"] button,
+[class*="filterButton"],
+.toggle-thread-info .toggle-thread-info-button {
+    background: var(--lg-fill);
+    backdrop-filter: var(--lg-blur);
+    -webkit-backdrop-filter: var(--lg-blur);
+    border: 0.5px solid var(--lg-stroke);
+    box-shadow: var(--lg-highlight), var(--lg-shadow-soft);
+    border-radius: 999px;
+}
+
+/* Send: liquid accent drop */
+[class*="BrandSendButton-module__container"] {
+    background: linear-gradient(180deg, var(--lg-accent-top) 0%, var(--lg-accent-bottom) 100%);
+    border: 0.5px solid rgba(255, 255, 255, 0.25);
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.4), 0 3px 12px rgba(var(--lg-accent-rgb), 0.35);
+}
+
+[class*="BrandSendButton-module__container"]:disabled {
+    opacity: 0.45;
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.3);
+}
+
+/* ============ Chat list: glass selection on native vibrancy ============ */
+[class*="ThreadListItem-module__wrapper"][class*="ThreadListItem-module__isSelected"]::before,
+[class*="PinnedThreadListItem-module__wrapper"][class*="PinnedThreadListItem-module__isSelected"]::before {
+    background: var(--lg-fill-strong);
+    border: 0.5px solid var(--lg-stroke);
+    box-shadow: var(--lg-highlight), var(--lg-shadow-soft);
+    border-radius: 12px;
+}
+
+[class*="ThreadListItem-module__wrapper"]:not([class*="ThreadListItem-module__isSelected"]):hover::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    border-radius: 12px;
+    background: var(--lg-fill);
+}
+
+[class*="ThreadListItem-module__title"] {
+    letter-spacing: 0.01em;
+}
+
+/* ============ Menus, command bar / search, dropdowns ============ */
+/* Overlays sit on busy content: thick frosted glass so text never bleeds through. */
+.menu-list,
+.command-bar,
+[class*="SingleSelect-module__dropdown"] {
+    background: var(--lg-fill-overlay);
+    backdrop-filter: blur(30px) saturate(180%);
+    -webkit-backdrop-filter: blur(30px) saturate(180%);
+    border: 0.5px solid var(--lg-stroke);
+    box-shadow: var(--lg-highlight), var(--lg-shadow);
+}
+
+/* ============ Reduced transparency: keep the shapes, drop the glass ============ */
+:is(.reduce-transparency, .no-transparency) .right-pane-header.right-pane-header-thread,
+:is(.reduce-transparency, .no-transparency) [class*="ComposeMessage-module__input"],
+:is(.reduce-transparency, .no-transparency) [class*="ComposeMessage-module__leftButtons"] button,
+:is(.reduce-transparency, .no-transparency) [class*="filterButton"],
+:is(.reduce-transparency, .no-transparency) .toggle-thread-info .toggle-thread-info-button,
+:is(.reduce-transparency, .no-transparency) .menu-list,
+:is(.reduce-transparency, .no-transparency) .command-bar {
+    background: var(--lg-fill-solid);
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+}
+
+@media (prefers-reduced-transparency: reduce) {
+    .right-pane-header.right-pane-header-thread,
+    [class*="ComposeMessage-module__input"],
+    [class*="ComposeMessage-module__leftButtons"] button,
+    [class*="filterButton"],
+    .toggle-thread-info .toggle-thread-info-button,
+    .menu-list,
+    .command-bar {
+        background: var(--lg-fill-solid);
+        backdrop-filter: none;
+        -webkit-backdrop-filter: none;
+    }
+}
