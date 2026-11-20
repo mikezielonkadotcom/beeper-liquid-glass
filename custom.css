@@ -49,6 +49,7 @@
         radial-gradient(50% 50% at 8% 88%, rgba(196, 166, 255, 0.26), transparent 70%);
 
     --lg-text: #1d1d1f;
+    --lg-reply-line: rgba(15, 23, 42, 0.28);
 
     /* Beeper tokens */
     --color-primary: var(--lg-accent);
@@ -82,6 +83,7 @@
             radial-gradient(50% 50% at 6% 90%, rgba(255, 92, 146, 0.09), transparent 70%);
 
         --lg-text: #f5f5f7;
+        --lg-reply-line: rgba(255, 255, 255, 0.28);
 
         --color-primary: var(--lg-accent);
         --bubble-out-bg: var(--lg-accent);
@@ -140,6 +142,13 @@
     background: none;
     border-color: transparent;
     box-shadow: none;
+}
+
+/* Reply thread connector: Beeper's #e1e1e1 / #353535 vanish on the canvas.
+   Alpha ink so it reads over every part of the gradient. */
+[class*="BrandReplyLineSegment-module__container"],
+[class*="ThreadedRepliesView-module__messages"] .reply-line-segment {
+    color: var(--lg-reply-line);
 }
 
 /* ============ Composer: floating glass capsule ============ */
